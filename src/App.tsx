@@ -388,7 +388,8 @@ function App() {
       <div className="container">
         <main>
           <div className="py-5 text-center">
-            <h2>Checkout Demo</h2>
+            <h2>Parcelamos Tudo</h2>
+            <h3 style={{ fontSize: "20px" }}>Checkout Demo</h3>
           </div>
 
           <div className="row g-5">
