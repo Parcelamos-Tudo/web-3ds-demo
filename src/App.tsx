@@ -341,7 +341,7 @@ function App() {
     } else {
       const response_success = order_response.data as RequestOrderSuccessRes;
       newTimeline(
-        `Cobrança executada e finalizada sem desafio: ${response_success.id_order}`,
+        `Cobrança executada e finalizada sem desafio`,
         JSON.stringify(response_success, null, 2)
       );
       setLoading(false);
@@ -354,7 +354,7 @@ function App() {
       const order = order_response_challenge.data as RequestOrderSuccessRes;
 
       newTimeline(
-        `Cobrança executada e finalizada pós desafio: ${order.id_order}`,
+        `Cobrança executada e finalizada pós desafio`,
         JSON.stringify(order, null, 2)
       );
     } else {
@@ -386,7 +386,7 @@ function App() {
   return (
     <>
       <div className="container">
-        <main>
+        <main style={{ paddingBottom: "10px" }}>
           <div className="py-5 text-center">
             <h2>Parcelamos Tudo</h2>
             <h3 style={{ fontSize: "20px" }}>Checkout Demo</h3>
