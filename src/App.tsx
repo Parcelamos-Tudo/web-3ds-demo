@@ -474,6 +474,7 @@ function App() {
                       id="debit_card"
                       value="debit_card"
                       {...register("type")}
+                      disabled
                     />
                     <label
                       className="btn btn-outline-primary"
