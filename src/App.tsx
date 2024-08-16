@@ -1,16 +1,16 @@
-import { useMemo, useState } from "react";
 import { randFullName, randIp } from "@ngneat/falso";
 import { ParcelamosTudo3DS } from "@parcelamostudo-tech/lib-3ds-client";
-import { useForm } from "react-hook-form";
 import cpf from "cpf";
+import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 
-import { formatDate } from "./utils";
 import {
   OrderService,
   RequestOrderChallengeRes,
   RequestOrderReq,
   RequestOrderSuccessRes,
 } from "./service/order";
+import { formatDate } from "./utils";
 
 type FormValues = {
   name: string;
@@ -474,7 +474,7 @@ function App() {
                       id="debit_card"
                       value="debit_card"
                       {...register("type")}
-                      disabled
+                      // disabled
                     />
                     <label
                       className="btn btn-outline-primary"
