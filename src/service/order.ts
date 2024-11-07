@@ -113,7 +113,6 @@ export class OrderService {
 export type RequestThreeDsReq = {
   currency: string;
   amount: number;
-  type: string;
   product_description: string;
   customer: {
     ip: string;
@@ -121,6 +120,7 @@ export type RequestThreeDsReq = {
     document: string;
   };
   card: {
+    type: string;
     installments: number;
     number: string;
     exp_month: string;
