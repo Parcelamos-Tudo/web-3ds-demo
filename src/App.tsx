@@ -233,9 +233,12 @@ function App() {
     const req_3ds = await service.requestThreeDs({
       amount: Number(data.amount),
       currency: "BRL",
+      type: data.type,
       product_description: data.cardProductDescription,
       customer: {
         ip: data.ip,
+        name: data.name,
+        document: data.document,
       },
       card: {
         document: data.cardDocument,

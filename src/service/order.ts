@@ -113,9 +113,12 @@ export class OrderService {
 export type RequestThreeDsReq = {
   currency: string;
   amount: number;
+  type: string;
   product_description: string;
   customer: {
     ip: string;
+    name: string;
+    document: string;
   };
   card: {
     installments: number;
