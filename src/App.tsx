@@ -45,28 +45,28 @@ function getDefault(type: CardType): Partial<FormValues> {
         cardNumber: "4918019199883839",
         cardCvv: "123",
         cardExpirationMonth: "12",
-        cardExpirationYear: "2032",
+        cardExpirationYear: "2034",
       };
     case "sem-method-challenge":
       return {
         cardNumber: "4548817212493017",
         cardCvv: "123",
         cardExpirationMonth: "12",
-        cardExpirationYear: "2032",
+        cardExpirationYear: "2034",
       };
     case "com-method-frictionless":
       return {
         cardNumber: "4918019160034602",
         cardCvv: "123",
         cardExpirationMonth: "12",
-        cardExpirationYear: "2032",
+        cardExpirationYear: "2034",
       };
     case "sem-method-frictionless":
       return {
         cardNumber: "4548814479727229",
         cardCvv: "123",
         cardExpirationMonth: "12",
-        cardExpirationYear: "2032",
+        cardExpirationYear: "2034",
       };
 
     default:
