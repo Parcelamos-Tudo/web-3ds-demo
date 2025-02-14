@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@ngneat/falso": "^7.2.0",
-    "@parcelamostudo-tech/lib-3ds-client": "^0.0.13",
+    "@parcelamostudo-tech/lib-3ds-client": "^0.0.15",
     "axios": "^1.7.2",
     "cpf": "^2.0.1",
     "react": "^18.3.1",
