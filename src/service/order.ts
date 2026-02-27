@@ -15,7 +15,7 @@ export class OrderService {
 
   async authenticate(
     client_id: string,
-    client_secret: string
+    client_secret: string,
   ): Promise<Resp<boolean>> {
     try {
       const req_data = {
@@ -34,9 +34,8 @@ export class OrderService {
       const { data } = await this.i.post<Response>("/auth/token", req_data);
 
       this.authenticated = true;
-      this.i.defaults.headers[
-        "Authorization"
-      ] = `${data.token_type} ${data.access_token}`;
+      this.i.defaults.headers["Authorization"] =
+        `${data.token_type} ${data.access_token}`;
 
       return {
         success: true,
@@ -53,8 +52,26 @@ export class OrderService {
       };
     }
   }
+  async getPublicKey(): Promise<Resp<GetPublicKeyRes>> {
+    try {
+      const { data } = await this.i.post("/api/order/3ds/public-key");
+
+      return {
+        success: true,
+        data,
+      };
+    } catch (err) {
+      const error = err as AxiosError;
+
+      return {
+        success: false,
+        data: JSON.stringify(error.response?.data, null, 2),
+      };
+    }
+  }
+
   async requestThreeDs(
-    req_data: RequestThreeDsReq
+    req_data: RequestThreeDsReq,
   ): Promise<Resp<RequestThreeDsRes>> {
     if (!this.authenticated) {
       throw new Error("Api should be authenticated");
@@ -63,7 +80,7 @@ export class OrderService {
     try {
       const { data } = await this.i.post<RequestThreeDsRes>(
         "/api/order/3ds",
-        req_data
+        req_data,
       );
 
       return {
@@ -82,7 +99,7 @@ export class OrderService {
     }
   }
   async requestOrder(
-    req_data: RequestOrderReq
+    req_data: RequestOrderReq,
   ): Promise<Resp<RequestOrderChallengeRes | RequestOrderSuccessRes>> {
     if (!this.authenticated) {
       throw new Error("Api should be authenticated");
@@ -161,17 +178,6 @@ export type RequestOrderReq = {
     capture: boolean;
     "3ds": {
       id_three_ds: string;
-      browser_user_agent: string;
-      browser_accept_header: string;
-      browser_java_enabled: string;
-      browser_javascript_enabled: string;
-      browser_language: string;
-      browser_color_depth: string;
-      browser_screen_height: string;
-      browser_screen_width: string;
-      browser_tz: string;
-      product_description: string;
-      validation_time_to_complete: number;
     };
   };
 };
@@ -221,10 +227,17 @@ export type RequestOrderSuccessRes = {
   canceled_at?: string;
 };
 
+export type GetPublicKeyReq = {
+  id_merchant: string;
+};
+export type GetPublicKeyRes = {
+  public_key: string;
+};
+
 type Resp<T = unknown> =
   | {
       success: true;
-      data?: T;
+      data: T;
     }
   | {
       success: false;

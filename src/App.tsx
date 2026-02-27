@@ -1,15 +1,10 @@
 import { randFullName, randIp } from "@ngneat/falso";
-import { ParcelamosTudo3DS } from "@parcelamostudo-tech/lib-3ds-client";
+import { ParcelamosTudo3DSV2 } from "@parcelamostudo-tech/lib-3ds-client";
 import cpf from "cpf";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
-import {
-  OrderService,
-  RequestOrderChallengeRes,
-  RequestOrderReq,
-  RequestOrderSuccessRes,
-} from "./service/order";
+import { OrderService } from "./service/order";
 import { formatDate } from "./utils";
 
 type FormValues = {
@@ -33,39 +28,21 @@ type FormValues = {
   withThreeDs: boolean;
 };
 
-type CardType =
-  | "sem-method-challenge"
-  | "com-method-challenge"
-  | "sem-method-frictionless"
-  | "com-method-frictionless";
+type CardType = "challenge-success" | "frictionless-success";
 function getDefault(type: CardType): Partial<FormValues> {
   switch (type) {
-    case "com-method-challenge":
+    case "challenge-success":
       return {
-        cardNumber: "4918019199883839",
+        cardNumber: "4000000000002503",
         cardCvv: "123",
-        cardExpirationMonth: "12",
+        cardExpirationMonth: "01",
         cardExpirationYear: "2034",
       };
-    case "sem-method-challenge":
+    case "frictionless-success":
       return {
-        cardNumber: "4548817212493017",
+        cardNumber: "4000000000002701",
         cardCvv: "123",
-        cardExpirationMonth: "12",
-        cardExpirationYear: "2034",
-      };
-    case "com-method-frictionless":
-      return {
-        cardNumber: "4918019160034602",
-        cardCvv: "123",
-        cardExpirationMonth: "12",
-        cardExpirationYear: "2034",
-      };
-    case "sem-method-frictionless":
-      return {
-        cardNumber: "4548814479727229",
-        cardCvv: "123",
-        cardExpirationMonth: "12",
+        cardExpirationMonth: "01",
         cardExpirationYear: "2034",
       };
 
@@ -171,33 +148,17 @@ function App() {
               <li>
                 <button
                   className="dropdown-item"
-                  onClick={() => setCardData("sem-method-challenge")}
+                  onClick={() => setCardData("challenge-success")}
                 >
-                  Sem Method URL/Challenge
+                  Challenge Success
                 </button>
               </li>
               <li>
                 <button
                   className="dropdown-item"
-                  onClick={() => setCardData("com-method-challenge")}
+                  onClick={() => setCardData("frictionless-success")}
                 >
-                  Com Method URL/Challenge
-                </button>
-              </li>
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setCardData("sem-method-frictionless")}
-                >
-                  Sem Method URL/Frictionless
-                </button>
-              </li>
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setCardData("com-method-frictionless")}
-                >
-                  Com Method URL/Frictionless
+                  Frictionless Success
                 </button>
               </li>
             </ul>
@@ -211,15 +172,15 @@ function App() {
 
   async function handleExecute(data: FormValues) {
     resetTimeline();
+
     setLoading(true);
-    console.log("handleExecute", data);
-    newTimeline("Processo iniciado");
+    newTimeline("Processo iniciado", env);
 
     const service = new OrderService(data.api_env);
 
     const authenticated = await service.authenticate(
       data.client_id,
-      data.client_secret
+      data.client_secret,
     );
 
     if (!authenticated.success) {
@@ -230,143 +191,32 @@ function App() {
 
     newTimeline("Api autenticada com sucesso");
 
-    const req_3ds = await service.requestThreeDs({
+    const public_key = await service.getPublicKey();
+    if (!public_key.success) {
+      newTimeline("Erro ao buscar public key", public_key.data);
+      setLoading(false);
+      return;
+    }
+    newTimeline("Public key requisitada com sucesso");
+
+    const lib = new ParcelamosTudo3DSV2(public_key.data.public_key);
+
+    const response = await lib.execute({
       amount: Number(data.amount),
       currency: "BRL",
-      product_description: data.cardProductDescription,
-      customer: {
-        ip: data.ip,
-        name: data.name,
-        document: data.document,
-      },
       card: {
-        type: data.type,
-        document: data.cardDocument,
         exp_month: data.cardExpirationMonth,
         exp_year: data.cardExpirationYear,
-        installments: Number(data.installments),
-        name: data.cardName,
         number: data.cardNumber,
-        security_code: data.cardCvv,
-        soft_description: data.cardSoftDescription,
       },
+      user: {},
     });
 
-    if (!req_3ds.success) {
-      newTimeline(
-        "Erro ao solicitar viabilidade de 3DS para cartão",
-        req_3ds.data
-      );
-      setLoading(false);
-      return;
-    }
-
-    newTimeline("3DS autenticado com sucesso");
-
-    const threeLib = new ParcelamosTudo3DS();
-
-    let validation_time_to_complete: number = 0;
-
-    if (req_3ds.data?.validation_method) {
-      const resp = await threeLib.executeCustomerValidation({
-        id_three_ds: req_3ds.data.id_three_ds,
-        validation_method_token: req_3ds.data.validation_method.token,
-        validation_method_url: req_3ds.data.validation_method.url,
-      });
-
-      newTimeline("3DS method executado com sucesso");
-
-      validation_time_to_complete = resp.validation_time_to_complete;
+    if (response.success) {
+      newTimeline("Lib executada com sucesso", response.id_three_ds);
     } else {
-      newTimeline("3DS method não necessário");
+      newTimeline("Erro ao executar lib", response.message);
     }
-
-    const browser_data = threeLib.getBrowserData();
-
-    const order_req: RequestOrderReq = {
-      amount: Number(data.amount),
-      currency: "BRL",
-      type: data.type,
-      customer: {
-        document: data.document,
-        name: data.name,
-        ip: data.ip,
-      },
-      card: {
-        document: data.cardDocument,
-        exp_month: data.cardExpirationMonth,
-        exp_year: data.cardExpirationYear,
-        installments: Number(data.installments),
-        name: data.cardName,
-        number: data.cardNumber,
-        security_code: data.cardCvv,
-        soft_description: data.cardSoftDescription,
-        capture: true,
-        "3ds": {
-          id_three_ds: req_3ds.data!.id_three_ds,
-          browser_accept_header:
-            "text/html,application/xhtml+xml,application/xml;q=0.9,/;q=0.8,application/json",
-          browser_color_depth: browser_data.browser_color_depth,
-          browser_java_enabled: browser_data.browser_java_enabled,
-          browser_javascript_enabled: browser_data.browser_javascript_enabled,
-          browser_language: browser_data.browser_language,
-          browser_screen_height: browser_data.browser_screen_height,
-          browser_screen_width: browser_data.browser_screen_width,
-          browser_tz: browser_data.browser_tz,
-          browser_user_agent: browser_data.browser_user_agent,
-          product_description: data.cardProductDescription,
-          validation_time_to_complete,
-        },
-      },
-    };
-
-    const order_response = await service.requestOrder(order_req);
-
-    if (!order_response.success) {
-      newTimeline("Erro ao executar criação de order", order_response.data);
-      setLoading(false);
-      return;
-    }
-
-    newTimeline("Order executada com sucesso");
-
-    if ((order_response.data as RequestOrderChallengeRes)?.challenge_url) {
-      const challenge = order_response.data as RequestOrderChallengeRes;
-      newTimeline("Iniciando execução de desafio");
-
-      await threeLib.executeChallenge({
-        challenge_url: challenge.challenge_url,
-        credential_request: challenge.credential_request,
-        id_three_ds: challenge.id_three_ds,
-      });
-
-      newTimeline("Desafio executado");
-    } else {
-      const response_success = order_response.data as RequestOrderSuccessRes;
-      newTimeline(
-        `Cobrança executada e finalizada sem desafio`,
-        JSON.stringify(response_success, null, 2)
-      );
-      setLoading(false);
-      return;
-    }
-
-    const order_response_challenge = await service.requestOrder(order_req);
-
-    if (order_response_challenge.success) {
-      const order = order_response_challenge.data as RequestOrderSuccessRes;
-
-      newTimeline(
-        `Cobrança executada e finalizada pós desafio`,
-        JSON.stringify(order, null, 2)
-      );
-    } else {
-      newTimeline(
-        "Erro ao finalizar cobrança com 3DS",
-        order_response_challenge.data
-      );
-    }
-
     setLoading(false);
   }
 
@@ -377,6 +227,8 @@ function App() {
     setValue("cardName", name.toLocaleUpperCase());
     setValue("document", document);
     setValue("cardDocument", document);
+    setValue("client_id", "fcdf9a5c-65b5-4a03-88bf-64c40c0e29f1");
+    setValue("client_secret", "70ef7ec3f33a458da3f6f2199111665e");
     setValue("ip", randIp());
   }
   function setCardData(type: CardType) {
