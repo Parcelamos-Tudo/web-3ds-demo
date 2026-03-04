@@ -1,4 +1,10 @@
-import { randFullName, randIp } from "@ngneat/falso";
+import {
+  randCity,
+  randEmail,
+  randFullName,
+  randStreetAddress,
+  randZipCode,
+} from "@ngneat/falso";
 import { ParcelamosTudo3DSV2 } from "@parcelamostudo-tech/lib-3ds-client";
 import cpf from "cpf";
 import { useMemo, useState } from "react";
@@ -10,7 +16,12 @@ import { formatDate } from "./utils";
 type FormValues = {
   name: string;
   document: string;
-  ip: string;
+  email: string;
+  address: string;
+  country: string;
+  state: string;
+  city: string;
+  postal_code: string;
   amount: string;
   installments: string;
   type: string;
@@ -227,9 +238,12 @@ function App() {
     setValue("cardName", name.toLocaleUpperCase());
     setValue("document", document);
     setValue("cardDocument", document);
-    setValue("client_id", "fcdf9a5c-65b5-4a03-88bf-64c40c0e29f1");
-    setValue("client_secret", "70ef7ec3f33a458da3f6f2199111665e");
-    setValue("ip", randIp());
+    setValue("email", randEmail());
+    setValue("country", "BR");
+    setValue("state", "SP");
+    setValue("city", randCity());
+    setValue("postal_code", randZipCode());
+    setValue("address", randStreetAddress());
   }
   function setCardData(type: CardType) {
     const data = getDefault(type);
@@ -282,19 +296,89 @@ function App() {
                     </div>
                   </div>
                   <div className="col-sm-4">
-                    <label htmlFor="ip" className="form-label">
-                      IP
+                    <label htmlFor="email" className="form-label">
+                      Email
                     </label>
                     <input
                       type="text"
                       className="form-control"
-                      id="ip"
-                      {...register("ip")}
+                      id="email"
+                      {...register("email")}
                       required
                     />
                     <div className="invalid-feedback">
-                      Valid first ip is required.
+                      Valid first email is required.
                     </div>
+                  </div>
+                </div>
+                <br />
+                <h4 className="mb-3">Endereço</h4>
+                <div className="row g-3">
+                  <div className="col-sm-4">
+                    <label htmlFor="country" className="form-label">
+                      País
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      required
+                      {...register("country")}
+                    />
+                    <div className="invalid-feedback">Field is required.</div>
+                  </div>
+                  <div className="col-sm-4">
+                    <label htmlFor="state" className="form-label">
+                      Estado
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="state"
+                      {...register("state")}
+                      required
+                    />
+                    <div className="invalid-feedback">Field is required.</div>
+                  </div>
+                  <div className="col-sm-4">
+                    <label htmlFor="city" className="form-label">
+                      Cidade
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="city"
+                      {...register("city")}
+                      required
+                    />
+                    <div className="invalid-feedback">Field is required.</div>
+                  </div>
+                </div>
+                <div className="row g-3">
+                  <div className="col-sm-8">
+                    <label htmlFor="address" className="form-label">
+                      Endereço
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      required
+                      id="address"
+                      {...register("address")}
+                    />
+                    <div className="invalid-feedback">Field is required.</div>
+                  </div>
+                  <div className="col-sm-4">
+                    <label htmlFor="postal_code" className="form-label">
+                      CEP
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="postal_code"
+                      {...register("postal_code")}
+                      required
+                    />
+                    <div className="invalid-feedback">Field is required.</div>
                   </div>
                 </div>
 
