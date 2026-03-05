@@ -225,6 +225,41 @@ function App() {
 
     if (response.success) {
       newTimeline("Lib executada com sucesso", response.id_three_ds);
+
+      const orderResponse = await service.requestOrder({
+        external_reference_id: "a83a8bc2-fb9c-43cc-8c44-0948229679fb",
+        description: "Teste de compra",
+        currency: "BRL",
+        amount: Number(data.amount),
+        type: "credit_card",
+        customer: {
+          name: data.name,
+          document: data.document,
+          ip: "192.168.2.115",
+        },
+        card: {
+          installments: Number(data.installments),
+          number: data.cardNumber,
+          exp_month: data.cardExpirationMonth,
+          exp_year: data.cardExpirationYear,
+          security_code: data.cardCvv,
+          name: data.cardName,
+          document: data.cardDocument,
+          soft_description: "Parcelamos Tudo",
+          capture: true,
+          "3ds": {
+            id_three_ds: response.id_three_ds,
+          },
+        },
+      });
+
+      if (!orderResponse.success) {
+        newTimeline("Erro ao requisitar ordem", orderResponse.data);
+        setLoading(false);
+        return;
+      }
+
+      newTimeline("Requisição de ordem finalizada");
     } else {
       newTimeline("Erro ao executar lib", response.message);
     }
