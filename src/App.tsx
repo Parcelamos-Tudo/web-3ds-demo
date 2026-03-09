@@ -1,10 +1,4 @@
-import {
-  randCity,
-  randEmail,
-  randFullName,
-  randStreetAddress,
-  randZipCode,
-} from "@ngneat/falso";
+import { randEmail, randFullName } from "@ngneat/falso";
 import { ParcelamosTudo3DSV2 } from "@parcelamostudo-tech/lib-3ds-client";
 import cpf from "cpf";
 import { useMemo, useState } from "react";
@@ -212,6 +206,8 @@ function App() {
 
     const lib = new ParcelamosTudo3DSV2(public_key.data.public_key);
 
+    const [first_name, last_name] = data.name.split(" ", 1);
+
     const response = await lib.execute({
       amount: Number(data.amount),
       currency: "BRL",
@@ -220,7 +216,17 @@ function App() {
         exp_year: data.cardExpirationYear,
         number: data.cardNumber,
       },
-      user: {},
+      user: {
+        address: data.address,
+        city: data.city,
+        country: data.country,
+        email: data.email,
+        first_name,
+        last_name,
+        state: data.state,
+        postal_code: data.postal_code,
+        document: data.document,
+      },
     });
 
     if (response.success) {
@@ -276,9 +282,9 @@ function App() {
     setValue("email", randEmail());
     setValue("country", "BR");
     setValue("state", "SP");
-    setValue("city", randCity());
-    setValue("postal_code", randZipCode());
-    setValue("address", randStreetAddress());
+    setValue("city", "São Bernardo do Campo");
+    setValue("postal_code", "09890140");
+    setValue("address", "R. Fuad Mussa Cheid 190");
   }
   function setCardData(type: CardType) {
     const data = getDefault(type);
