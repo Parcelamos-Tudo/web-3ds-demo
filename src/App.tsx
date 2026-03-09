@@ -4,7 +4,7 @@ import cpf from "cpf";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
-import { OrderService } from "./service/order";
+import { OrderService, RequestOrderSuccessRes } from "./service/order";
 import { formatDate } from "./utils";
 
 type FormValues = {
@@ -60,6 +60,7 @@ type ITimeline = {
   title: string;
   description?: string;
   date: Date;
+  link?: string;
 };
 
 function App() {
@@ -75,8 +76,11 @@ function App() {
     },
   });
 
-  function newTimeline(title: string, description?: string) {
-    setTime((prev) => [{ title, description, date: new Date() }, ...prev]);
+  function newTimeline(title: string, description?: string, link?: string) {
+    setTime((prev) => [
+      { title, description, date: new Date(), link },
+      ...prev,
+    ]);
   }
   function resetTimeline() {
     setTime([]);
@@ -109,6 +113,14 @@ function App() {
             {item.description && (
               <>
                 {item.description}
+                <br />
+              </>
+            )}
+            {item.link && (
+              <>
+                <a href={item.link} target="_blank" rel="noreferrer">
+                  Link
+                </a>
                 <br />
               </>
             )}
@@ -265,7 +277,13 @@ function App() {
         return;
       }
 
-      newTimeline("Requisição de ordem finalizada");
+      newTimeline(
+        "Requisição de ordem finalizada: order:" +
+          (orderResponse.data as RequestOrderSuccessRes).id_order +
+          "- status:" +
+          (orderResponse.data as RequestOrderSuccessRes).status,
+        `https://sandbox.backoffice.parcelamostudo.com.br/order/${(orderResponse.data as RequestOrderSuccessRes).id_order}`,
+      );
     } else {
       newTimeline("Erro ao executar lib", response.message);
     }
