@@ -210,7 +210,7 @@ function App() {
 
     const lib = new ParcelamosTudo3DSV2(public_key.data.public_key);
 
-    const [first_name, last_name] = data.name.split(" ", 1);
+    const [first_name, last_name] = data.name.split(" ", 2);
 
     const response = await lib.execute({
       amount: Number(data.amount),
