@@ -38,7 +38,7 @@ function getDefault(type: CardType): Partial<FormValues> {
   switch (type) {
     case "challenge-success":
       return {
-        cardNumber: "4000000000002503",
+        cardNumber: "4761739001010036",
         cardCvv: "123",
         cardExpirationMonth: "01",
         cardExpirationYear: "2034",
@@ -113,14 +113,6 @@ function App() {
             {item.description && (
               <>
                 {item.description}
-                <br />
-              </>
-            )}
-            {item.link && (
-              <>
-                <a href={item.link} target="_blank" rel="noreferrer">
-                  Link
-                </a>
                 <br />
               </>
             )}
@@ -278,11 +270,10 @@ function App() {
       }
 
       newTimeline(
-        "Requisição de ordem finalizada: order:" +
+        "Requisição de ordem finalizada: order:\n" +
           (orderResponse.data as RequestOrderSuccessRes).id_order +
-          "- status:" +
+          "\nstatus:" +
           (orderResponse.data as RequestOrderSuccessRes).status,
-        `https://sandbox.backoffice.parcelamostudo.com.br/order/${(orderResponse.data as RequestOrderSuccessRes).id_order}`,
       );
     } else {
       newTimeline("Erro ao executar lib", response.message);
